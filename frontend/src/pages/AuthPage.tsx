@@ -97,7 +97,7 @@ export const AuthPage: React.FC = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-slate-800/20 blur-[120px] rounded-full pointer-events-none"></div>
 
       {/* Brand Header */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center relative z-20">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 text-white shadow-md mb-3">
           <Building2 className="w-6 h-6 text-slate-100" />
         </div>

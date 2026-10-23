@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  onboardiq-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: onboardiq_application
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/onboardiq
+      - JWT_SECRET=onboardiq-docker-compose-production-secret-2026
+      - COOKIE_SECRET=onboardiq-docker-compose-cookie-secret-2026
+      - ALLOWED_ORIGINS=http://localhost:5000,http://localhost:5173
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    volumes:
+      - onboardiq_uploads:/app/backend/uploads
+
+  mongodb:
+    image: mongo:7.0
+    container_name: onboardiq_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - onboardiq_db_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  onboardiq_db_data:
+  onboardiq_uploads:

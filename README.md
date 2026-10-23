@@ -1,6 +1,5 @@
 # OnboardIQ — Intelligent KYC Onboarding & Dual-Control Screening Platform
 
-[![CI/CD Pipeline](https://github.com/hcltech-hackathon/case-02-onboardiq/actions/workflows/ci.yml/badge.svg)](https://github.com/hcltech-hackathon/case-02-onboardiq/actions)
 **HCLTech BFSI Hackathon | Track: Full Stack Web Engineer**  
 **Fictional Institution:** Deccan Digital Bank (Scheduled Commercial Bank)  
 **Implementation Date:** October 2026
@@ -16,6 +15,7 @@
 2. **Dual-Control Governance:** Physical segregation of Maker (investigator/recommender) and Checker (approver/rejecter) roles. Complete server-side prohibition against self-approval.
 3. **Privacy-by-Design:** Aadhaar restricted to last 4 digits; PAN masked across all public APIs, audit logs, and reports (`ABCXXXXX4F`).
 4. **Zero-Configuration Offline Portability:** Built-in automatic fallback to `MongoMemoryServer` enables 100% offline local running, evaluation, and automated testing without external database dependencies.
+5. **AI-Integration:** Addition of Groq as LLm for rules engine
 
 ---
 

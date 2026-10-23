@@ -1,3 +1,10 @@
+import dotenv from 'dotenv';
+import path from 'path';
+// Load from backend/.env or root .env
+dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
 import app from './app.js';
 import { connectDatabase } from './db.js';
 import { runSeed } from './scripts/seed.js';

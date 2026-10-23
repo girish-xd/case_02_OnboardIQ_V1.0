@@ -16,14 +16,12 @@ import { NotificationItem } from '../types/index.js';
 
 interface HeaderProps {
   onOpenNotifications: () => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenNotifications,
-  activeTab,
-  setActiveTab,
 }) => {
   const { user, switchUser, logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -174,10 +172,11 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Logout Button */}
                 <button
                   onClick={logout}
-                  className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-full transition"
-                  title="Logout"
+                  className="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg flex items-center gap-1.5 transition shadow-xs"
+                  title="Sign Out to Login Page"
                 >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sign Out</span>
                 </button>
               </>
             ) : (

@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (username: string, password?: string) => Promise<void>;
+  register: (payload: { username: string; password: string; fullName: string; email: string }) => Promise<void>;
   logout: () => Promise<void>;
   switchUser: (username: string) => Promise<void>;
 }
@@ -21,13 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await api.getMe();
       setUser(data.user);
     } catch (_) {
-      // If not logged in, auto-login as applicant1 by default for instant smooth experience
-      try {
-        const loginData = await api.login('applicant1', 'password123');
-        setUser(loginData.user);
-      } catch (e) {
-        setUser(null);
-      }
+      // User is not logged in; remain null so AuthPage renders
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -47,6 +43,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (payload: { username: string; password: string; fullName: string; email: string }) => {
+    setLoading(true);
+    try {
+      await api.register(payload);
+      // Auto-login newly registered customer
+      const data = await api.login(payload.username, payload.password);
+      setUser(data.user);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       await api.logout();
@@ -60,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, switchUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, switchUser }}>
       {children}
     </AuthContext.Provider>
   );

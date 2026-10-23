@@ -2,29 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
 import {
-  ShieldCheck,
   Bell,
-  UserCheck,
   LogOut,
   Building2,
-  RefreshCw,
-  FileText,
-  Sliders,
-  CheckCircle,
+  ShieldCheck,
+  Lock,
+  User,
 } from 'lucide-react';
 import { NotificationItem } from '../types/index.js';
 
 interface HeaderProps {
   onOpenNotifications: () => void;
-  activeTab?: string;
-  setActiveTab?: (tab: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({
-  onOpenNotifications,
-}) => {
-  const { user, switchUser, logout } = useAuth();
+export const Header: React.FC<HeaderProps> = ({ onOpenNotifications }) => {
+  const { user, logout } = useAuth();
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [loggingOut, setLoggingOut] = useState<boolean>(false);
 
   const fetchUnread = async () => {
     if (!user) return;
@@ -41,146 +35,125 @@ export const Header: React.FC<HeaderProps> = ({
     return () => clearInterval(interval);
   }, [user]);
 
-  const roleConfig = {
-    APPLICANT: { label: 'Applicant Portal', badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    MAKER: { label: 'KYC Maker (Officer)', badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' },
-    CHECKER: { label: 'Compliance Checker', badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-    ADMIN: { label: 'Bank Administrator', badgeClass: 'bg-purple-50 text-purple-700 border-purple-200' },
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
-  const currentRoleInfo = user ? roleConfig[user.role] : { label: 'Guest', badgeClass: 'bg-slate-100 text-slate-700' };
+  const roleConfig = {
+    APPLICANT: {
+      label: 'Customer Portal',
+      code: 'APPLICANT',
+      badgeClass: 'bg-emerald-500/10 text-emerald-700 border-emerald-300/60 ring-1 ring-emerald-500/10',
+      dotClass: 'bg-emerald-500',
+    },
+    MAKER: {
+      label: 'KYC Maker Officer',
+      code: 'FIRST-LINE DEFENCE',
+      badgeClass: 'bg-amber-500/10 text-amber-800 border-amber-300/60 ring-1 ring-amber-500/10',
+      dotClass: 'bg-amber-500',
+    },
+    CHECKER: {
+      label: 'Compliance Checker',
+      code: 'SECOND-LINE DEFENCE',
+      badgeClass: 'bg-indigo-500/10 text-indigo-800 border-indigo-300/60 ring-1 ring-indigo-500/10',
+      dotClass: 'bg-indigo-500',
+    },
+    ADMIN: {
+      label: 'System Administrator',
+      code: 'ADMIN & AUDIT',
+      badgeClass: 'bg-purple-500/10 text-purple-800 border-purple-300/60 ring-1 ring-purple-500/10',
+      dotClass: 'bg-purple-500',
+    },
+  };
+
+  const currentRoleInfo = user
+    ? roleConfig[user.role]
+    : { label: 'Guest', code: 'GUEST', badgeClass: 'bg-slate-100 text-slate-700 border-slate-200', dotClass: 'bg-slate-400' };
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-      {/* Top Demo Bar */}
-      <div className="bg-slate-900 text-slate-200 text-xs px-4 py-1.5 flex flex-wrap items-center justify-between border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="font-medium text-slate-300">HCLTech BFSI Hackathon — Case 02: OnboardIQ</span>
-          <span className="text-slate-500 hidden sm:inline">|</span>
-          <span className="text-slate-400 hidden sm:inline">Track: Full Stack Web Engineer</span>
-        </div>
-
-        {/* Live Role Switcher for seamless demo walkthrough */}
-        <div className="flex items-center gap-1.5 my-0.5">
-          <span className="text-slate-400 font-semibold mr-1">Switch Role:</span>
-          <button
-            onClick={() => switchUser('applicant1')}
-            className={`px-2 py-0.5 rounded transition ${
-              user?.username === 'applicant1'
-                ? 'bg-emerald-600 text-white font-medium'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-            }`}
-          >
-            Applicant
-          </button>
-          <button
-            onClick={() => switchUser('maker1')}
-            className={`px-2 py-0.5 rounded transition ${
-              user?.username === 'maker1'
-                ? 'bg-amber-600 text-white font-medium'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-            }`}
-          >
-            Maker (U1)
-          </button>
-          <button
-            onClick={() => switchUser('maker2')}
-            className={`px-2 py-0.5 rounded transition ${
-              user?.username === 'maker2'
-                ? 'bg-amber-600 text-white font-medium'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-            }`}
-          >
-            Maker (U2)
-          </button>
-          <button
-            onClick={() => switchUser('checker1')}
-            className={`px-2 py-0.5 rounded transition ${
-              user?.username === 'checker1'
-                ? 'bg-indigo-600 text-white font-medium'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-            }`}
-          >
-            Checker (C1)
-          </button>
-          <button
-            onClick={() => switchUser('admin1')}
-            className={`px-2 py-0.5 rounded transition ${
-              user?.username === 'admin1'
-                ? 'bg-purple-600 text-white font-medium'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-            }`}
-          >
-            Admin (A1)
-          </button>
-        </div>
-      </div>
-
-      {/* Main Navbar */}
+    <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/90 sticky top-0 z-40 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo & Platform Name */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white shadow-sm">
-              <Building2 className="w-6 h-6" />
+          {/* Bank Mark & Platform Identity */}
+          <div className="flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-white shadow-xs">
+              <Building2 className="w-5 h-5 text-slate-100" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold tracking-tight text-slate-900">
+                <span className="text-base font-semibold tracking-tight text-slate-950 font-sans">
                   Deccan Digital Bank
                 </span>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded bg-brand-50 text-brand-700 border border-brand-200">
+                <span className="font-mono text-[10px] tracking-wider uppercase font-semibold px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-700">
                   OnboardIQ
                 </span>
               </div>
-              <p className="text-xs text-slate-500">
-                Intelligent KYC Onboarding, Document Verification & Watchlist Screening
-              </p>
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <span className="inline-flex items-center gap-1 text-slate-600">
+                  <Lock className="w-3 h-3 text-slate-400" />
+                  <span>JWT Authenticated</span>
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="text-slate-500 hidden sm:inline">Enterprise KYC & Watchlist Platform</span>
+              </div>
             </div>
           </div>
 
-          {/* User Status & Navigation Actions */}
-          <div className="flex items-center gap-4">
+          {/* Authenticated User & Actions */}
+          <div className="flex items-center gap-3">
             {user ? (
               <>
-                <div className="hidden md:flex flex-col text-right">
-                  <div className="text-sm font-semibold text-slate-800">{user.fullName}</div>
-                  <div className="text-xs text-slate-500">{user.email}</div>
+                {/* Role Badge */}
+                <div
+                  className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md font-medium border ${currentRoleInfo.badgeClass}`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${currentRoleInfo.dotClass}`}></span>
+                  <span className="font-semibold">{currentRoleInfo.label}</span>
                 </div>
 
-                <span
-                  className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${currentRoleInfo.badgeClass}`}
-                >
-                  {currentRoleInfo.label}
-                </span>
+                {/* User Info */}
+                <div className="hidden md:flex flex-col text-right pl-2 border-l border-slate-200">
+                  <div className="text-xs font-semibold text-slate-900 leading-tight">{user.fullName}</div>
+                  <div className="text-[11px] font-mono text-slate-500 leading-tight mt-0.5">{user.username}</div>
+                </div>
 
                 {/* Notifications Button */}
                 <button
+                  type="button"
                   onClick={onOpenNotifications}
-                  className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-full transition"
-                  title="Notifications"
+                  className="relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition border border-transparent hover:border-slate-200"
+                  title="Compliance Notifications"
                 >
-                  <Bell className="w-5 h-5" />
+                  <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-slate-900 text-white text-[10px] font-mono font-bold rounded-full flex items-center justify-center ring-2 ring-white">
                       {unreadCount}
                     </span>
                   )}
                 </button>
 
-                {/* Logout Button */}
+                {/* Sign Out Button */}
                 <button
-                  onClick={logout}
-                  className="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg flex items-center gap-1.5 transition shadow-xs"
-                  title="Sign Out to Login Page"
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg flex items-center gap-1.5 transition shadow-2xs disabled:opacity-50"
+                  title="Sign out of current account and return to login"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Sign Out</span>
+                  <LogOut className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{loggingOut ? 'Signing out...' : 'Sign Out'}</span>
                 </button>
               </>
             ) : (
-              <span className="text-sm text-slate-500">Connecting...</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Authenticating...</span>
+              </div>
             )}
           </div>
         </div>

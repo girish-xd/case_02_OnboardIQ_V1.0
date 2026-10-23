@@ -190,7 +190,7 @@ export async function runSeed(isTest = false) {
       const text = docTextMap.get(docId) || 'SYNTHETIC SPECIMEN - NOT A VALID DOCUMENT';
       const buffer = Buffer.from(text, 'utf-8');
 
-      const saved = documentStorage.saveDocument(docId, row.file_name, buffer, 'text/plain');
+      const saved = await documentStorage.saveDocument(docId, row.file_name, buffer, 'text/plain');
 
       await DocumentModel.findOneAndUpdate(
         { docId },

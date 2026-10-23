@@ -57,7 +57,7 @@ router.post(
       const docId = `D${(3000000 + count + 1).toString()}`;
 
       // Save file with hash verification and security checks
-      const saved = documentStorage.saveDocument(
+      const saved = await documentStorage.saveDocument(
         docId,
         req.file.originalname,
         req.file.buffer,

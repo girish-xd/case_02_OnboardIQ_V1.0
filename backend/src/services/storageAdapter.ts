@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { ocrService } from './ocrService.js';
 
 export interface SavedFileResult {
   fileName: string;
@@ -21,16 +22,16 @@ export class LocalSecureStorageAdapter {
     }
   }
 
-  public saveDocument(
+  public async saveDocument(
     docId: string,
     originalName: string,
     buffer: Buffer,
     mimeType: string
-  ): SavedFileResult {
-    // Check max size: 1 MB as per Section 4
-    const maxSize = 1 * 1024 * 1024;
+  ): Promise<SavedFileResult> {
+    // Check max size: 2 MB limit
+    const maxSize = 2 * 1024 * 1024;
     if (buffer.length > maxSize) {
-      throw new Error(`File size ${buffer.length} bytes exceeds 1 MB maximum limit.`);
+      throw new Error(`File size ${buffer.length} bytes exceeds 2 MB maximum limit.`);
     }
 
     // Security validation against executable headers / dangerous extensions
@@ -57,14 +58,12 @@ export class LocalSecureStorageAdapter {
 
     fs.writeFileSync(fullPath, buffer);
 
+    // Run OCR / text extraction on uploaded file
     let textContent = '';
-    if (ext === '.txt') {
-      try {
-        textContent = buffer.toString('utf-8');
-      } catch (e) {
-        // Not valid utf-8
-        throw new Error('Invalid file encoding: must be valid UTF-8 text.');
-      }
+    try {
+      textContent = await ocrService.extractText(buffer, originalName, mimeType);
+    } catch (err) {
+      console.warn(`[StorageAdapter] OCR extraction failed for ${originalName}:`, err);
     }
 
     return {

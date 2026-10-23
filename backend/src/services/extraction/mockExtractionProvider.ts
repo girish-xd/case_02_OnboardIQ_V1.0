@@ -3,6 +3,7 @@ import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { DeclaredDocType, ExtractedField } from '../../types/index.js';
 import { IExtractionProvider, ExtractionResult } from './types.js';
+import { RuleBasedAIExtractor } from './ruleBasedAIExtractor.js';
 
 export class MockExtractionProvider implements IExtractionProvider {
   public name = 'mock';
@@ -67,11 +68,17 @@ export class MockExtractionProvider implements IExtractionProvider {
 
   public async extract(
     docId: string,
-    _text?: string,
-    _declaredDocType?: DeclaredDocType
+    text?: string,
+    declaredDocType?: DeclaredDocType
   ): Promise<ExtractionResult> {
     const mockData = this.mockStore.get(docId);
     if (!mockData) {
+      // If docId is not in benchmark dataset and text is available, use the AI extractor
+      if (text && text.trim().length > 0) {
+        const aiExtractor = new RuleBasedAIExtractor();
+        return aiExtractor.extract(docId, text, declaredDocType);
+      }
+
       // Unknown document returns doc_type OTHER with confidence 0.00 as per Section 5 (FR-3)
       return {
         docId,

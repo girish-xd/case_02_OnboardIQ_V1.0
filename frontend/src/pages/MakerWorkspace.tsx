@@ -10,8 +10,12 @@ import {
   Edit2,
   RefreshCw,
   Send,
-  Eye,
   ShieldAlert,
+  ChevronRight,
+  User,
+  Hash,
+  Activity,
+  Layers,
 } from 'lucide-react';
 
 export const MakerWorkspace: React.FC = () => {
@@ -102,7 +106,7 @@ export const MakerWorkspace: React.FC = () => {
     setIsCorrecting(true);
     setErrorMsg(null);
     try {
-      const updated = await api.correctField({
+      await api.correctField({
         applicationId: selectedApp.applicationId,
         docId: selectedDoc.docId,
         fieldName: correctingField.fieldName,
@@ -111,7 +115,7 @@ export const MakerWorkspace: React.FC = () => {
         version: selectedApp.version,
       });
 
-      setSuccessMsg(`Field ${correctingField.fieldName} corrected. Rules re-evaluated!`);
+      setSuccessMsg(`Field ${correctingField.fieldName} corrected. Rules re-evaluated successfully.`);
       setCorrectingField(null);
       await loadCaseDetails(selectedApp.applicationId);
       await fetchQueue();
@@ -126,7 +130,7 @@ export const MakerWorkspace: React.FC = () => {
   const handleSubmitRecommendation = async () => {
     if (!selectedApp) return;
     if (recommendationComment.trim().length < 10) {
-      setErrorMsg('Recommendation comment must be at least 10 characters long as per Section 3.');
+      setErrorMsg('Recommendation comment must be at least 10 characters long as per KYC review standards.');
       return;
     }
 
@@ -140,7 +144,7 @@ export const MakerWorkspace: React.FC = () => {
         version: selectedApp.version,
       });
 
-      setSuccessMsg(`Recommendation (${recommendation}) submitted. Case routed to Checker.`);
+      setSuccessMsg(`Recommendation (${recommendation}) recorded. Case forwarded to Checker queue.`);
       setRecommendationComment('');
       setSelectedApp(null);
       await fetchQueue();
@@ -152,183 +156,207 @@ export const MakerWorkspace: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Title & Queue Stats */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">KYC Officer Review Workbench</h1>
-            <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-amber-300">
-              Maker Role
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">
+              KYC Officer Review Workbench
+            </h1>
+            <span className="bg-amber-500/10 text-amber-800 text-xs px-2.5 py-0.5 rounded-md font-semibold border border-amber-300/60 font-mono">
+              FIRST-LINE DEFENCE
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Section 5 (FR-6): Queue ordered by risk (HIGH first) then FIFO submission time. Recommending officer cannot check own case.
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Priority review queue sorted by risk level (HIGH risk priority) followed by FIFO submission timestamp.
           </p>
         </div>
         <button
           onClick={fetchQueue}
-          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+          disabled={loading}
+          className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 transition shadow-2xs"
         >
-          <RefreshCw className="w-3.5 h-3.5" /> Refresh Queue ({queue.length})
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh Queue ({queue.length})</span>
         </button>
       </div>
 
       {errorMsg && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-sm flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-600" />
-          <span>{errorMsg}</span>
+        <div className="p-3.5 bg-rose-50 border border-rose-200/90 text-rose-800 rounded-lg text-xs flex items-center gap-2.5">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+          <span className="font-medium">{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-600" />
-          <span>{successMsg}</span>
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200/90 text-emerald-800 rounded-lg text-xs flex items-center gap-2.5">
+          <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+          <span className="font-medium">{successMsg}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Col: Review Queue List */}
-        <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
-          <h2 className="text-sm font-bold text-slate-800 flex items-center justify-between">
-            <span>Pending Review</span>
-            <span className="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-bold">
+        {/* Left Column: Review Queue List */}
+        <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-slate-400" />
+              <span>Review Queue</span>
+            </h2>
+            <span className="bg-slate-100 text-slate-700 text-xs px-2 py-0.5 rounded font-mono font-bold">
               {queue.length}
             </span>
-          </h2>
+          </div>
 
           {queue.length === 0 ? (
-            <div className="text-center py-8 text-slate-400 text-xs">
-              No cases currently in review queue.
+            <div className="text-center py-12 text-slate-400 text-xs">
+              <CheckCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <span>All cases reviewed. Queue is empty.</span>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[700px] overflow-y-auto pr-1">
-              {queue.map((app) => (
-                <button
-                  key={app.applicationId}
-                  onClick={() => loadCaseDetails(app.applicationId)}
-                  className={`w-full text-left p-3 rounded-lg border transition text-xs space-y-1.5 ${
-                    selectedApp?.applicationId === app.applicationId
-                      ? 'border-brand-600 bg-brand-50/60 shadow-sm'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">{app.applicationId}</span>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded font-bold ${
-                        app.riskCategory === 'HIGH'
-                          ? 'bg-rose-100 text-rose-800'
-                          : app.riskCategory === 'MEDIUM'
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      {app.riskCategory || 'LOW'} RISK
-                    </span>
-                  </div>
-                  <div className="font-medium text-slate-700 truncate">{app.fullName}</div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between">
-                    <span>{app.applicationDate}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> Waiting
-                    </span>
-                  </div>
-                  {app.reasonCodes && app.reasonCodes.length > 0 && (
-                    <div className="text-[10px] font-mono text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded truncate">
-                      {app.reasonCodes.join(', ')}
+            <div className="space-y-2 max-h-[720px] overflow-y-auto pr-1">
+              {queue.map((app) => {
+                const isSelected = selectedApp?.applicationId === app.applicationId;
+                const isHighRisk = app.riskCategory === 'HIGH';
+                const isMedRisk = app.riskCategory === 'MEDIUM';
+
+                return (
+                  <button
+                    key={app.applicationId}
+                    onClick={() => loadCaseDetails(app.applicationId)}
+                    className={`w-full text-left p-3 rounded-lg border transition text-xs space-y-1.5 ${
+                      isSelected
+                        ? 'border-slate-900 bg-slate-50/80 shadow-2xs ring-1 ring-slate-900/5'
+                        : 'border-slate-200/80 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-slate-900">{app.applicationId}</span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded font-mono font-bold ${
+                          isHighRisk
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
+                            : isMedRisk
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200/80'
+                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}
+                      >
+                        {app.riskCategory || 'LOW'}
+                      </span>
                     </div>
-                  )}
-                </button>
-              ))}
+                    <div className="font-medium text-slate-800 truncate">{app.fullName}</div>
+                    <div className="text-[11px] font-mono text-slate-500 flex items-center justify-between">
+                      <span>{app.applicationDate}</span>
+                      <span className="flex items-center gap-1 text-slate-400">
+                        <Clock className="w-3 h-3" /> In Review
+                      </span>
+                    </div>
+                    {app.reasonCodes && app.reasonCodes.length > 0 && (
+                      <div className="text-[10px] font-mono text-amber-900 bg-amber-50/80 border border-amber-200/60 px-1.5 py-0.5 rounded truncate">
+                        {app.reasonCodes.join(', ')}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Right 3 Cols: Dual-Pane Review Workbench */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Right 3 Columns: Dual-Pane Review Terminal */}
+        <div className="lg:col-span-3 space-y-5">
           {selectedApp ? (
             <>
               {/* Case Summary Bar */}
-              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+              <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-slate-900">{selectedApp.applicationId}</h2>
-                    <span className="text-xs bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-mono border border-brand-200">
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-base font-bold font-mono text-slate-900">{selectedApp.applicationId}</h2>
+                    <span className="text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono border border-slate-200">
                       v{selectedApp.version}
                     </span>
                     <span
-                      className={`text-xs px-2.5 py-0.5 rounded font-bold ${
+                      className={`text-[11px] px-2.5 py-0.5 rounded font-mono font-bold ${
                         selectedApp.riskCategory === 'HIGH'
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-amber-100 text-amber-800'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
                       }`}
                     >
                       {selectedApp.riskCategory} RISK
                     </span>
                   </div>
-                  <div className="text-xs text-slate-600 mt-1 flex gap-4">
-                    <span><strong>Applicant:</strong> {selectedApp.fullName}</span>
-                    <span><strong>PAN:</strong> {selectedApp.panNumber}</span>
-                    <span><strong>DOB:</strong> {selectedApp.dob}</span>
-                    <span><strong>Aadhaar:</strong> {selectedApp.aadhaarLast4}</span>
+                  <div className="text-xs text-slate-600 mt-1 flex flex-wrap gap-4 font-mono">
+                    <span><strong className="text-slate-800 font-sans">Name:</strong> {selectedApp.fullName}</span>
+                    <span><strong className="text-slate-800 font-sans">PAN:</strong> {selectedApp.panNumber}</span>
+                    <span><strong className="text-slate-800 font-sans">DOB:</strong> {selectedApp.dob}</span>
+                    <span><strong className="text-slate-800 font-sans">Aadhaar:</strong> {selectedApp.aadhaarLast4}</span>
                   </div>
                 </div>
 
                 {/* Reason Codes Triggered */}
                 <div className="text-right">
-                  <div className="text-xs font-semibold text-slate-500 mb-1">Triggered Exceptions:</div>
+                  <div className="text-[11px] font-medium text-slate-500 mb-1">Triggered Exception Flags:</div>
                   <div className="flex flex-wrap gap-1 justify-end">
-                    {selectedApp.reasonCodes?.map((rc) => (
-                      <span key={rc} className="bg-amber-100 text-amber-900 text-xs px-2 py-0.5 rounded font-mono border border-amber-200 font-semibold">
-                        {rc}
-                      </span>
-                    ))}
+                    {selectedApp.reasonCodes && selectedApp.reasonCodes.length > 0 ? (
+                      selectedApp.reasonCodes.map((rc) => (
+                        <span
+                          key={rc}
+                          className="bg-amber-50 text-amber-900 text-[11px] px-2 py-0.5 rounded font-mono border border-amber-200 font-semibold"
+                        >
+                          {rc}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-400">None</span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Dual-Pane Layout: Document Viewer & Extracted Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Left Pane: Document Text Viewer */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[520px]">
+                <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs flex flex-col h-[520px]">
                   {/* Doc Tabs */}
-                  <div className="flex border-b border-slate-200 bg-slate-50 overflow-x-auto p-1.5 gap-1">
-                    {appDocs.map((doc) => (
-                      <button
-                        key={doc.docId}
-                        onClick={() => selectDocument(doc)}
-                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition whitespace-nowrap flex items-center gap-1.5 ${
-                          selectedDoc?.docId === doc.docId
-                            ? 'bg-white text-brand-700 shadow-sm font-bold border border-slate-200'
-                            : 'text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>{doc.declaredDocType}</span>
-                      </button>
-                    ))}
+                  <div className="flex border-b border-slate-200 bg-slate-50/80 p-1.5 gap-1.5 overflow-x-auto">
+                    {appDocs.map((doc) => {
+                      const isDocSelected = selectedDoc?.docId === doc.docId;
+                      return (
+                        <button
+                          key={doc.docId}
+                          onClick={() => selectDocument(doc)}
+                          className={`text-xs px-3 py-1.5 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1.5 ${
+                            isDocSelected
+                              ? 'bg-white text-slate-900 shadow-2xs font-semibold border border-slate-200/90'
+                              : 'text-slate-600 hover:bg-slate-200/60'
+                          }`}
+                        >
+                          <FileText className="w-3.5 h-3.5 text-slate-500" />
+                          <span>{doc.declaredDocType}</span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Document Raw OCR Text Box */}
-                  <div className="flex-1 p-4 overflow-y-auto font-mono text-xs text-slate-700 bg-slate-900 text-emerald-400 p-4 rounded-b-xl whitespace-pre-wrap leading-relaxed select-text">
+                  {/* Document Raw OCR Text Box with clean legal reader styling */}
+                  <div className="flex-1 p-4 overflow-y-auto font-mono text-xs text-slate-200 bg-slate-950 p-4 rounded-b-xl whitespace-pre-wrap leading-relaxed select-text border-t border-slate-900">
                     {docText || 'Loading document text...'}
                   </div>
                 </div>
 
                 {/* Right Pane: Extracted Fields & Confidence */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col h-[520px] overflow-y-auto">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Extracted Fields ({selectedDoc?.declaredDocType})
+                <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 flex flex-col h-[520px]">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                      Extracted Fields ({selectedDoc?.declaredDocType || 'Document'})
                     </h3>
-                    <span className="text-xs font-mono text-slate-500">
-                      Doc ID: {selectedDoc?.docId}
+                    <span className="text-[11px] font-mono text-slate-500">
+                      ID: {selectedDoc?.docId}
                     </span>
                   </div>
 
-                  <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+                  <div className="space-y-2.5 flex-1 overflow-y-auto pr-1">
                     {docExtractions.map((field) => {
                       const isLowConfidence = field.confidence < 0.8;
                       return (
@@ -336,20 +364,20 @@ export const MakerWorkspace: React.FC = () => {
                           key={field._id || field.fieldName}
                           className={`p-3 rounded-lg border transition ${
                             isLowConfidence
-                              ? 'border-amber-300 bg-amber-50/50'
-                              : 'border-slate-200 bg-slate-50'
+                              ? 'border-amber-200 bg-amber-50/40'
+                              : 'border-slate-200/80 bg-slate-50/50'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-bold text-slate-700 uppercase">
+                            <span className="text-[11px] font-semibold text-slate-600 uppercase">
                               {field.fieldName}
                             </span>
                             <div className="flex items-center gap-2">
                               <span
-                                className={`text-[11px] font-mono px-2 py-0.5 rounded font-bold ${
+                                className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
                                   isLowConfidence
-                                    ? 'bg-amber-200 text-amber-900'
-                                    : 'bg-emerald-100 text-emerald-800'
+                                    ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                                    : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                                 }`}
                               >
                                 {(field.confidence * 100).toFixed(0)}% conf
@@ -360,21 +388,21 @@ export const MakerWorkspace: React.FC = () => {
                                   setCorrectionValue(field.value);
                                   setCorrectionReason('');
                                 }}
-                                className="text-brand-600 hover:text-brand-800 p-1 hover:bg-brand-50 rounded"
-                                title="Correct field"
+                                className="text-slate-600 hover:text-slate-900 p-1 hover:bg-slate-200/60 rounded transition"
+                                title="Correct field value"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
 
-                          <div className="font-mono text-sm font-semibold text-slate-900 break-all">
+                          <div className="font-mono text-xs font-semibold text-slate-900 break-all">
                             {field.value || '<empty>'}
                           </div>
 
                           {field.source === 'OFFICER' && (
-                            <div className="mt-1 text-[11px] text-purple-700 font-medium">
-                              Corrected by officer: "{field.correctionReason}" (was: {field.originalValue})
+                            <div className="mt-1.5 text-[10px] text-purple-700 font-medium">
+                              Officer override: "{field.correctionReason}" (was: {field.originalValue})
                             </div>
                           )}
                         </div>
@@ -384,12 +412,20 @@ export const MakerWorkspace: React.FC = () => {
                 </div>
               </div>
 
-              {/* Recommendation Box */}
-              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold text-slate-900">KYC Officer Recommendation (FR-6)</h3>
+              {/* Recommendation Submission Card */}
+              <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  Officer Recommendation & Verification Finding
+                </h3>
 
-                <div className="flex flex-wrap gap-4 text-xs font-semibold">
-                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-medium">
+                  <label
+                    className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition ${
+                      recommendation === 'APPROVE'
+                        ? 'border-emerald-500 bg-emerald-50/40 text-emerald-900'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="rec"
@@ -397,10 +433,16 @@ export const MakerWorkspace: React.FC = () => {
                       checked={recommendation === 'APPROVE'}
                       onChange={() => setRecommendation('APPROVE')}
                     />
-                    <span className="text-emerald-700">Recommend APPROVE</span>
+                    <span className="font-semibold">Recommend APPROVE</span>
                   </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
+                  <label
+                    className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition ${
+                      recommendation === 'REJECT'
+                        ? 'border-rose-500 bg-rose-50/40 text-rose-900'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="rec"
@@ -408,10 +450,16 @@ export const MakerWorkspace: React.FC = () => {
                       checked={recommendation === 'REJECT'}
                       onChange={() => setRecommendation('REJECT')}
                     />
-                    <span className="text-rose-700">Recommend REJECT</span>
+                    <span className="font-semibold">Recommend REJECT</span>
                   </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
+                  <label
+                    className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition ${
+                      recommendation === 'REQUEST_RESUBMISSION'
+                        ? 'border-amber-500 bg-amber-50/40 text-amber-900'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="rec"
@@ -419,38 +467,38 @@ export const MakerWorkspace: React.FC = () => {
                       checked={recommendation === 'REQUEST_RESUBMISSION'}
                       onChange={() => setRecommendation('REQUEST_RESUBMISSION')}
                     />
-                    <span className="text-amber-700">Request Document Resubmission</span>
+                    <span className="font-semibold">Request Resubmission</span>
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Justification / Review Comment (min 10 characters)
+                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                    Verification Finding / Justification (Min 10 chars required for audit trail)
                   </label>
                   <textarea
                     rows={3}
                     value={recommendationComment}
                     onChange={(e) => setRecommendationComment(e.target.value)}
-                    placeholder="Enter detailed KYC review findings and reason for recommendation..."
-                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="Enter detailed KYC analysis and justification for recommendation..."
+                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 text-slate-900"
                   />
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end pt-1">
                   <button
                     onClick={handleSubmitRecommendation}
                     disabled={isSubmittingRec || recommendationComment.trim().length < 10}
-                    className="px-6 py-2 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-sm disabled:opacity-50"
+                    className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition flex items-center gap-2 shadow-xs disabled:opacity-50"
                   >
-                    <Send className="w-4 h-4" />
-                    {isSubmittingRec ? 'Routing to Checker...' : 'Submit Recommendation to Checker'}
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{isSubmittingRec ? 'Routing to Checker...' : 'Submit Finding to Checker'}</span>
                   </button>
                 </div>
               </div>
             </>
           ) : (
-            <div className="bg-white p-16 rounded-xl border border-slate-200 text-center text-slate-400">
-              Select an application from the queue to start review.
+            <div className="bg-white p-16 rounded-xl border border-slate-200/90 text-center text-slate-400 text-xs">
+              Select an application from the review queue on the left to begin verification.
             </div>
           )}
         </div>
@@ -458,20 +506,20 @@ export const MakerWorkspace: React.FC = () => {
 
       {/* Field Correction Modal */}
       {correctingField && (
-        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
             <h3 className="text-sm font-bold text-slate-900">
-              Correct Extracted Field: <span className="uppercase text-brand-700">{correctingField.fieldName}</span>
+              Audit Field Correction: <span className="uppercase text-slate-700 font-mono">{correctingField.fieldName}</span>
             </h3>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Correct Value</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">New Corrected Value</label>
                 <input
                   type="text"
                   value={correctionValue}
                   onChange={(e) => setCorrectionValue(e.target.value)}
-                  className="w-full text-xs font-mono p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500"
+                  className="w-full text-xs font-mono p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none"
                 />
               </div>
 
@@ -483,8 +531,8 @@ export const MakerWorkspace: React.FC = () => {
                   type="text"
                   value={correctionReason}
                   onChange={(e) => setCorrectionReason(e.target.value)}
-                  placeholder="e.g. Corrected OCR misread 'O' to '0'"
-                  className="w-full text-xs p-2 border border-slate-300 rounded focus:ring-2 focus:ring-brand-500"
+                  placeholder="e.g. Corrected OCR misread character from original document"
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none"
                 />
               </div>
             </div>
@@ -492,14 +540,14 @@ export const MakerWorkspace: React.FC = () => {
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setCorrectingField(null)}
-                className="px-4 py-1.5 border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50"
+                className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveCorrection}
                 disabled={isCorrecting}
-                className="px-4 py-1.5 bg-brand-700 hover:bg-brand-800 text-white rounded text-xs font-bold disabled:opacity-50"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold disabled:opacity-50 transition"
               >
                 {isCorrecting ? 'Re-evaluating...' : 'Save & Re-run Rules'}
               </button>

@@ -5,10 +5,9 @@ import { api } from '../services/api.js';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password?: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   register: (payload: { username: string; password: string; fullName: string; email: string }) => Promise<void>;
   logout: () => Promise<void>;
-  switchUser: (username: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await api.getMe();
       setUser(data.user);
     } catch (_) {
-      // User is not logged in; remain null so AuthPage renders
+      // User is not logged in or token is invalid; remain null so AuthPage renders
       setUser(null);
     } finally {
       setLoading(false);
@@ -33,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, []);
 
-  const login = async (username: string, password = 'password123') => {
+  const login = async (username: string, password: string) => {
     setLoading(true);
     try {
       const data = await api.login(username, password);
@@ -63,12 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const switchUser = async (username: string) => {
-    await login(username, 'password123');
-  };
-
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, switchUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

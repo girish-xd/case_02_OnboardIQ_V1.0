@@ -12,9 +12,34 @@ const BASE_URL = '/api/v1';
 
 class ApiService {
   private csrfToken: string | null = null;
+  private jwtToken: string | null = null;
+
+  constructor() {
+    // Restore JWT from localStorage if available
+    try {
+      this.jwtToken = localStorage.getItem('onboardiq_jwt_token');
+    } catch (_) {
+      this.jwtToken = null;
+    }
+  }
 
   public setCsrfToken(token: string | null) {
     this.csrfToken = token;
+  }
+
+  public setJwtToken(token: string | null) {
+    this.jwtToken = token;
+    try {
+      if (token) {
+        localStorage.setItem('onboardiq_jwt_token', token);
+      } else {
+        localStorage.removeItem('onboardiq_jwt_token');
+      }
+    } catch (_) {}
+  }
+
+  public getJwtToken(): string | null {
+    return this.jwtToken;
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -26,6 +51,11 @@ class ApiService {
       headers['Content-Type'] = 'application/json';
     }
 
+    // Attach JWT Bearer token
+    if (this.jwtToken) {
+      headers['Authorization'] = `Bearer ${this.jwtToken}`;
+    }
+
     if (this.csrfToken) {
       headers['x-csrf-token'] = this.csrfToken;
     }
@@ -33,7 +63,7 @@ class ApiService {
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
       headers,
-      credentials: 'include', // Include HttpOnly cookies
+      credentials: 'include', // Include HttpOnly cookies as dual-protection
     });
 
     if (!res.ok) {
@@ -43,6 +73,12 @@ class ApiService {
       } catch (_) {
         errData = { message: res.statusText };
       }
+
+      // If token is invalid or expired, clear local credentials
+      if (res.status === 401) {
+        this.setJwtToken(null);
+      }
+
       const error: any = new Error(errData.message || 'Request failed');
       error.status = res.status;
       error.code = errData.code;
@@ -59,6 +95,10 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
+
+    if (data.token) {
+      this.setJwtToken(data.token);
+    }
     if (data.csrfToken) {
       this.csrfToken = data.csrfToken;
     }
@@ -81,7 +121,12 @@ class ApiService {
   }
 
   public async logout() {
-    return this.request('/auth/logout', { method: 'POST' });
+    try {
+      await this.request('/auth/logout', { method: 'POST' });
+    } finally {
+      this.setJwtToken(null);
+      this.csrfToken = null;
+    }
   }
 
   // Application APIs
@@ -122,7 +167,10 @@ class ApiService {
   }
 
   public getDocumentFileUrl(docId: string) {
-    return `${BASE_URL}/documents/${docId}/file`;
+    const token = this.getJwtToken();
+    return token
+      ? `${BASE_URL}/documents/${docId}/file?token=${encodeURIComponent(token)}`
+      : `${BASE_URL}/documents/${docId}/file`;
   }
 
   // Maker APIs

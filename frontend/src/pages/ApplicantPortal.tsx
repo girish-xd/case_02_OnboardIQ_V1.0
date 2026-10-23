@@ -12,6 +12,10 @@ import {
   ExternalLink,
   PlusCircle,
   RefreshCw,
+  Building2,
+  ShieldCheck,
+  CreditCard,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const ApplicantPortal: React.FC = () => {
@@ -133,7 +137,7 @@ export const ApplicantPortal: React.FC = () => {
         applicationId: targetAppId,
       });
 
-      setSuccessMsg(`Application ${targetAppId} submitted successfully! Outcome: ${submitRes.application.status}`);
+      setSuccessMsg(`Application ${targetAppId} submitted successfully. Current Status: ${submitRes.application.status}`);
       await fetchMyApplications();
       await selectApplication(targetAppId);
     } catch (err: any) {
@@ -159,7 +163,7 @@ export const ApplicantPortal: React.FC = () => {
         applicationId: activeApp.applicationId,
       });
 
-      setSuccessMsg('New document uploaded. Application re-evaluated!');
+      setSuccessMsg('New document uploaded. Application re-evaluated.');
       setResubmittingFile(null);
       await selectApplication(activeApp.applicationId);
     } catch (err: any) {
@@ -171,25 +175,52 @@ export const ApplicantPortal: React.FC = () => {
     switch (status) {
       case 'AUTO_APPROVED':
       case 'APPROVED':
-        return <span className="bg-emerald-50 text-emerald-700 border border-emerald-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><CheckCircle className="w-3.5 h-3.5" /> Approved</span>;
+        return (
+          <span className="bg-emerald-50 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 rounded-md text-[11px] font-semibold flex items-center gap-1 font-mono">
+            <CheckCircle className="w-3 h-3 text-emerald-600" />
+            <span>APPROVED</span>
+          </span>
+        );
       case 'AUTO_REJECTED':
       case 'REJECTED':
-        return <span className="bg-rose-50 text-rose-700 border border-rose-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><ShieldAlert className="w-3.5 h-3.5" /> Rejected</span>;
+        return (
+          <span className="bg-rose-50 text-rose-800 border border-rose-300 px-2.5 py-0.5 rounded-md text-[11px] font-semibold flex items-center gap-1 font-mono">
+            <ShieldAlert className="w-3 h-3 text-rose-600" />
+            <span>REJECTED</span>
+          </span>
+        );
       case 'RESUBMISSION_REQUESTED':
-        return <span className="bg-amber-50 text-amber-700 border border-amber-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5" /> Resubmission Required</span>;
+        return (
+          <span className="bg-amber-50 text-amber-800 border border-amber-300 px-2.5 py-0.5 rounded-md text-[11px] font-semibold flex items-center gap-1 font-mono">
+            <AlertCircle className="w-3 h-3 text-amber-600" />
+            <span>ACTION REQUIRED</span>
+          </span>
+        );
       default:
-        return <span className="bg-blue-50 text-blue-700 border border-blue-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Under Verification</span>;
+        return (
+          <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded-md text-[11px] font-semibold flex items-center gap-1 font-mono">
+            <Clock className="w-3 h-3 text-slate-500" />
+            <span>IN VERIFICATION</span>
+          </span>
+        );
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Banner */}
-      <div className="bg-gradient-to-r from-brand-900 to-brand-700 text-white p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Top Banner */}
+      <div className="bg-white p-6 rounded-xl border border-slate-200/90 shadow-2xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Deccan Digital Savings Account</h1>
-          <p className="text-brand-100 text-sm mt-1">
-            Apply online in minutes. Instant document verification, automated KYC checks, and secure onboarding.
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-lg font-bold tracking-tight text-slate-900">
+              Customer Onboarding & Account Portal
+            </h1>
+            <span className="bg-slate-100 text-slate-700 font-mono text-[11px] px-2 py-0.5 rounded font-semibold border border-slate-200">
+              SAVINGS ACC
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Instant identity verification, automated OCR document extraction, and dual-control compliance screening.
           </p>
         </div>
         <button
@@ -197,60 +228,72 @@ export const ApplicantPortal: React.FC = () => {
             setIsCreatingNew(true);
             setActiveApp(null);
           }}
-          className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow-sm"
+          className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center gap-2 shadow-xs"
         >
-          <PlusCircle className="w-4 h-4" /> Start New Application
+          <PlusCircle className="w-3.5 h-3.5" />
+          <span>New Account Application</span>
         </button>
       </div>
 
       {errorMsg && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-sm flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
-          <span>{errorMsg}</span>
+        <div className="p-3.5 bg-rose-50 border border-rose-200/90 text-rose-800 rounded-lg text-xs flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+          <span className="font-medium">{errorMsg}</span>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-600" />
-          <span>{successMsg}</span>
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200/90 text-emerald-800 rounded-lg text-xs flex items-center gap-2.5">
+          <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+          <span className="font-medium">{successMsg}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: My Applications list */}
+        {/* Left Column: My Applications List */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <h2 className="font-semibold text-slate-800 mb-3 flex items-center justify-between">
-              <span>My Applications</span>
-              <button onClick={fetchMyApplications} className="text-slate-400 hover:text-slate-600">
-                <RefreshCw className="w-4 h-4" />
+          <div className="bg-white p-4 rounded-xl border border-slate-200/90 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                My Submitted Cases
+              </h2>
+              <button
+                onClick={fetchMyApplications}
+                disabled={loading}
+                className="text-slate-400 hover:text-slate-700 transition"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               </button>
-            </h2>
+            </div>
 
             {applications.length === 0 ? (
-              <div className="text-center py-6 text-slate-400 text-sm">
-                No applications submitted yet.
+              <div className="text-center py-8 text-slate-400 text-xs">
+                No applications submitted yet. Click above to apply.
               </div>
             ) : (
-              <div className="space-y-2">
-                {applications.map((app) => (
-                  <button
-                    key={app.applicationId}
-                    onClick={() => selectApplication(app.applicationId)}
-                    className={`w-full text-left p-3 rounded-lg border transition flex items-center justify-between ${
-                      activeApp?.applicationId === app.applicationId
-                        ? 'border-brand-600 bg-brand-50/50'
-                        : 'border-slate-200 hover:border-slate-300 bg-white'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-bold text-slate-900 text-sm">{app.applicationId}</div>
-                      <div className="text-xs text-slate-500">{app.applicationDate}</div>
-                    </div>
-                    <div>{getStatusBadge(app.status)}</div>
-                  </button>
-                ))}
+              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                {applications.map((app) => {
+                  const isSelected = activeApp?.applicationId === app.applicationId;
+                  return (
+                    <button
+                      key={app.applicationId}
+                      onClick={() => selectApplication(app.applicationId)}
+                      className={`w-full text-left p-3 rounded-lg border transition text-xs space-y-1.5 ${
+                        isSelected
+                          ? 'border-slate-900 bg-slate-50/80 shadow-2xs ring-1 ring-slate-900/5'
+                          : 'border-slate-200/80 hover:border-slate-300 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-bold text-slate-900">{app.applicationId}</span>
+                        <div>{getStatusBadge(app.status)}</div>
+                      </div>
+                      <div className="text-[11px] font-mono text-slate-500">
+                        Date: {app.applicationDate}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -260,28 +303,32 @@ export const ApplicantPortal: React.FC = () => {
         <div className="lg:col-span-2">
           {isCreatingNew ? (
             /* New Application Form */
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-              <div className="border-b border-slate-200 pb-4">
-                <h2 className="text-lg font-bold text-slate-900">Savings Account Application Form</h2>
+            <div className="bg-white p-6 rounded-xl border border-slate-200/90 shadow-2xs space-y-6">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="text-base font-bold text-slate-900">Savings Account Application</h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Provide personal details and upload identity documents for automatic KYC verification.
+                  Enter your KYC credentials and upload identity proofs for automated verification.
                 </p>
               </div>
 
               <form onSubmit={handleSubmitApplication} className="space-y-6">
                 {/* Personal Information */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 mb-3">1. Personal Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">
+                    1. Identity Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 mb-1">Full Name (as on PAN)</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
+                        Full Legal Name (as on PAN)
+                      </label>
                       <input
                         type="text"
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       />
                     </div>
                     <div>
@@ -292,7 +339,7 @@ export const ApplicantPortal: React.FC = () => {
                         value={formData.dob}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
                     </div>
                     <div>
@@ -301,7 +348,7 @@ export const ApplicantPortal: React.FC = () => {
                         name="gender"
                         value={formData.gender}
                         onChange={handleInputChange}
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       >
                         <option value="MALE">Male</option>
                         <option value="FEMALE">Female</option>
@@ -318,7 +365,7 @@ export const ApplicantPortal: React.FC = () => {
                         placeholder="e.g. ZZKPS1234Q"
                         required
                         maxLength={10}
-                        className="w-full text-sm uppercase px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs uppercase px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
                     </div>
                     <div>
@@ -333,10 +380,10 @@ export const ApplicantPortal: React.FC = () => {
                         placeholder="4 digits only"
                         required
                         maxLength={4}
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Only last 4 digits accepted. 12-digit numbers are strictly rejected for privacy protection.
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        Only last 4 digits accepted. 12-digit Aadhaar values are strictly rejected for privacy protection.
                       </p>
                     </div>
                     <div>
@@ -348,7 +395,7 @@ export const ApplicantPortal: React.FC = () => {
                         onChange={handleInputChange}
                         required
                         maxLength={10}
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -359,7 +406,7 @@ export const ApplicantPortal: React.FC = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       />
                     </div>
                   </div>
@@ -367,17 +414,21 @@ export const ApplicantPortal: React.FC = () => {
 
                 {/* Address & Employment */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 mb-3">2. Address & Employment</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">
+                    2. Address & Occupation
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                     <div className="md:col-span-3">
-                      <label className="block text-xs font-medium text-slate-700 mb-1">Permanent Residential Address</label>
+                      <label className="block text-xs font-medium text-slate-700 mb-1">
+                        Residential Address
+                      </label>
                       <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       />
                     </div>
                     <div>
@@ -388,7 +439,7 @@ export const ApplicantPortal: React.FC = () => {
                         value={formData.city}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       />
                     </div>
                     <div>
@@ -399,7 +450,7 @@ export const ApplicantPortal: React.FC = () => {
                         value={formData.state}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       />
                     </div>
                     <div>
@@ -411,7 +462,7 @@ export const ApplicantPortal: React.FC = () => {
                         onChange={handleInputChange}
                         required
                         maxLength={6}
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
                     </div>
                     <div>
@@ -420,7 +471,7 @@ export const ApplicantPortal: React.FC = () => {
                         name="occupationCode"
                         value={formData.occupationCode}
                         onChange={handleInputChange}
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900"
                       >
                         <option value="SALARIED_PRIVATE">Salaried (Private Sector)</option>
                         <option value="SALARIED_PUBLIC">Salaried (Public Sector)</option>
@@ -440,7 +491,7 @@ export const ApplicantPortal: React.FC = () => {
                         value={formData.annualIncome}
                         onChange={handleInputChange}
                         required
-                        className="w-full text-sm px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="w-full text-xs px-3 py-2 border rounded-lg border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900 font-mono"
                       />
                     </div>
                   </div>
@@ -448,113 +499,114 @@ export const ApplicantPortal: React.FC = () => {
 
                 {/* Mandatory Documents Upload */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 mb-3">
-                    3. Upload KYC Documents (Min 3: PAN Card, Aadhaar Card, Address Proof)
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-3">
+                    3. Required Document Proofs (Min 3: PAN, Aadhaar, Address Proof)
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {/* PAN Card */}
-                    <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-6 h-6 mx-auto text-brand-600 mb-1" />
+                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
                       <span className="text-xs font-semibold block text-slate-800">1. PAN Card</span>
                       <input
                         type="file"
                         accept=".txt,.pdf,.png,.jpg"
                         onChange={(e) => handleDocumentFileSelect('PAN_CARD', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-brand-50 file:text-brand-700"
+                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
                       />
                     </div>
 
                     {/* Aadhaar Card */}
-                    <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-6 h-6 mx-auto text-brand-600 mb-1" />
+                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
                       <span className="text-xs font-semibold block text-slate-800">2. Aadhaar Card</span>
                       <input
                         type="file"
                         accept=".txt,.pdf,.png,.jpg"
                         onChange={(e) => handleDocumentFileSelect('AADHAAR_CARD', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-brand-50 file:text-brand-700"
+                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
                       />
                     </div>
 
                     {/* Address Proof */}
-                    <div className="border border-dashed border-slate-300 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-6 h-6 mx-auto text-brand-600 mb-1" />
+                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
+                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
                       <span className="text-xs font-semibold block text-slate-800">3. Address Proof</span>
                       <input
                         type="file"
                         accept=".txt,.pdf,.png,.jpg"
                         onChange={(e) => handleDocumentFileSelect('ELECTRICITY_BILL', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-brand-50 file:text-brand-700"
+                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Mandatory Consent Checkbox */}
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <label className="flex items-start gap-3 cursor-pointer">
+                {/* Consent */}
+                <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
                     <input
                       type="checkbox"
                       name="consentKyc"
                       checked={formData.consentKyc}
                       onChange={handleInputChange}
-                      className="mt-1 h-4 w-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
+                      className="mt-0.5 h-4 w-4 text-slate-900 rounded border-slate-300 focus:ring-slate-900"
                     />
-                    <span className="text-xs text-slate-700 leading-relaxed">
-                      I hereby give voluntary consent to Deccan Digital Bank to verify my identity and address details, validate my PAN with tax records, and perform regulatory screening in accordance with Reserve Bank of India (RBI) KYC guidelines.
+                    <span className="text-[11px] text-slate-600 leading-relaxed">
+                      I voluntarily give consent to Deccan Digital Bank to verify my identity and address details, validate my PAN with tax authority records, and perform regulatory AML/PEP screening under RBI guidelines.
                     </span>
                   </label>
                 </div>
 
                 {/* Submit Actions */}
-                <div className="flex justify-end gap-3 pt-2">
+                <div className="flex justify-end gap-2.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setIsCreatingNew(false)}
-                    className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    className="px-4 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-6 py-2 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold shadow-sm transition disabled:opacity-50"
+                    className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition disabled:opacity-50"
                   >
-                    {submitting ? 'Submitting Application...' : 'Submit Application'}
+                    {submitting ? 'Submitting Application...' : 'Submit KYC Application'}
                   </button>
                 </div>
               </form>
             </div>
           ) : activeApp ? (
             /* Selected Application Tracker */
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white p-6 rounded-xl border border-slate-200/90 shadow-2xs space-y-6">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-slate-900">{activeApp.applicationId}</h2>
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-lg font-bold font-mono text-slate-900">{activeApp.applicationId}</h2>
                     {getStatusBadge(activeApp.status)}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Submitted on {activeApp.applicationDate} • Ref Version: v{activeApp.version}
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Application Date: <span className="font-mono">{activeApp.applicationDate}</span> • Ref Version: v{activeApp.version}
                   </p>
                 </div>
 
-                {/* If approved, show opened account banner */}
+                {/* Core Banking Opened Account Banner */}
                 {activeApp.coreBankingAccount && (
-                  <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-lg text-emerald-800 text-xs">
-                    <div className="font-bold flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4 text-emerald-600" /> Account Active
+                  <div className="bg-emerald-50 border border-emerald-300 p-3 rounded-lg text-emerald-900 text-xs">
+                    <div className="font-bold flex items-center gap-1.5 text-emerald-800">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <span>Savings Account Active</span>
                     </div>
-                    <div className="font-mono mt-1">Acc No: {activeApp.coreBankingAccount.accountNumber}</div>
-                    <div className="font-mono text-[11px] text-emerald-700">Cust ID: {activeApp.coreBankingAccount.customerId}</div>
+                    <div className="font-mono mt-1 text-[11px]">Acc No: {activeApp.coreBankingAccount.accountNumber}</div>
+                    <div className="font-mono text-[10px] text-emerald-700">Cust ID: {activeApp.coreBankingAccount.customerId}</div>
                   </div>
                 )}
               </div>
 
               {/* Status Explanation Card */}
               {activeApp.reasons && activeApp.reasons.length > 0 && (
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2">
+                <div className="bg-slate-50/80 p-4 rounded-lg border border-slate-200 space-y-2">
                   <h3 className="text-xs font-semibold text-slate-700">Application Status Notes</h3>
                   <div className="space-y-1.5">
                     {activeApp.reasons.map((r, i) => (
@@ -569,18 +621,19 @@ export const ApplicantPortal: React.FC = () => {
 
               {/* Resubmission Action Banner if Requested */}
               {activeApp.status === 'RESUBMISSION_REQUESTED' && (
-                <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 space-y-3">
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <AlertCircle className="w-5 h-5 text-amber-600" /> Document Resubmission Requested
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 space-y-2.5">
+                  <div className="flex items-center gap-2 font-bold text-xs">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    <span>Document Resubmission Requested</span>
                   </div>
                   <p className="text-xs leading-relaxed text-amber-800">
-                    Our KYC verification officer has requested an updated or clearer document. Please upload a replacement document within 7 days.
+                    Our compliance verification officer has requested a clearer or updated proof. Please upload the requested document below:
                   </p>
-                  <div className="flex items-center gap-2 pt-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
                     <select
                       value={resubmittingDocType}
                       onChange={(e) => setResubmittingDocType(e.target.value as DeclaredDocType)}
-                      className="text-xs border border-amber-300 rounded px-2 py-1.5 bg-white text-slate-800"
+                      className="text-xs border border-amber-300 rounded px-2.5 py-1.5 bg-white text-slate-800"
                     >
                       <option value="ELECTRICITY_BILL">Electricity Bill</option>
                       <option value="BANK_STATEMENT">Bank Statement</option>
@@ -592,12 +645,12 @@ export const ApplicantPortal: React.FC = () => {
                       type="file"
                       accept=".txt,.pdf,.png,.jpg"
                       onChange={(e) => setResubmittingFile(e.target.files?.[0] || null)}
-                      className="text-xs text-amber-900 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-amber-200 file:text-amber-900"
+                      className="text-xs text-amber-900 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-amber-200 file:text-amber-900"
                     />
                     <button
                       onClick={handleResubmitDocument}
                       disabled={!resubmittingFile}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold disabled:opacity-50"
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold disabled:opacity-50 transition"
                     >
                       Upload & Re-submit
                     </button>
@@ -605,52 +658,56 @@ export const ApplicantPortal: React.FC = () => {
                 </div>
               )}
 
-              {/* Personal Details Snapshot (Masked) */}
+              {/* Applicant Profile (Masked) */}
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-3">Applicant Profile</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2.5">
+                  Customer Profile & Masked PII
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-slate-50 p-3.5 rounded-lg border border-slate-200/80 font-mono">
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Full Name</span>
-                    <span className="font-semibold text-slate-800">{activeApp.fullName}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">Full Name</span>
+                    <span className="font-semibold text-slate-900 font-sans">{activeApp.fullName}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">PAN Number</span>
-                    <span className="font-mono font-semibold text-slate-800">{activeApp.panNumber}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">PAN</span>
+                    <span className="font-semibold text-slate-900">{activeApp.panNumber}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Aadhaar</span>
-                    <span className="font-mono font-semibold text-slate-800">{activeApp.aadhaarLast4}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">Aadhaar (Last 4)</span>
+                    <span className="font-semibold text-slate-900">{activeApp.aadhaarLast4}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Date of Birth</span>
-                    <span className="font-semibold text-slate-800">{activeApp.dob}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">Date of Birth</span>
+                    <span className="font-semibold text-slate-900">{activeApp.dob}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">Mobile</span>
-                    <span className="font-semibold text-slate-800">{activeApp.mobile}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">Mobile</span>
+                    <span className="font-semibold text-slate-900">{activeApp.mobile}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block mb-0.5">City / State</span>
-                    <span className="font-semibold text-slate-800">{activeApp.city}, {activeApp.state}</span>
+                    <span className="text-slate-400 block mb-0.5 text-[10px] uppercase font-sans">Location</span>
+                    <span className="font-semibold text-slate-900 font-sans">{activeApp.city}, {activeApp.state}</span>
                   </div>
                 </div>
               </div>
 
               {/* Uploaded Documents List */}
               <div>
-                <h3 className="text-sm font-semibold text-slate-800 mb-3">Uploaded Documents</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2.5">
+                  Uploaded Identity Documents
+                </h3>
                 <div className="space-y-2">
                   {activeDocs.map((doc) => (
                     <div
                       key={doc.docId}
-                      className="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-white text-xs"
+                      className="flex items-center justify-between p-3 rounded-lg border border-slate-200/80 bg-white text-xs"
                     >
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-brand-600" />
+                      <div className="flex items-center gap-2.5">
+                        <FileText className="w-4 h-4 text-slate-500" />
                         <div>
                           <div className="font-semibold text-slate-800">{doc.fileName}</div>
-                          <div className="text-[11px] text-slate-400">
-                            Declared Type: {doc.declaredDocType} • ID: {doc.docId}
+                          <div className="text-[11px] text-slate-400 font-mono">
+                            Type: {doc.declaredDocType} • ID: {doc.docId}
                           </div>
                         </div>
                       </div>
@@ -658,9 +715,10 @@ export const ApplicantPortal: React.FC = () => {
                         href={api.getDocumentFileUrl(doc.docId)}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded flex items-center gap-1"
+                        className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded text-xs font-medium flex items-center gap-1 transition"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> View File
+                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                        <span>View Document</span>
                       </a>
                     </div>
                   ))}
@@ -668,8 +726,8 @@ export const ApplicantPortal: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white p-12 rounded-xl border border-slate-200 text-center text-slate-400">
-              Select an application or click "Start New Application".
+            <div className="bg-white p-12 rounded-xl border border-slate-200/90 text-center text-slate-400 text-xs">
+              Select an application from the left panel or click "New Account Application" to begin.
             </div>
           )}
         </div>

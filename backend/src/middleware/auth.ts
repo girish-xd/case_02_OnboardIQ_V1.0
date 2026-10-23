@@ -23,11 +23,12 @@ declare global {
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
-  // Check cookie or Bearer token header
   const token =
     req.cookies?.onboardiq_token ||
     (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')
       ? req.headers.authorization.substring(7)
+      : typeof req.query?.token === 'string'
+      ? req.query.token
       : null);
 
   if (!token) {

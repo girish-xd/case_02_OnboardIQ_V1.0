@@ -52,9 +52,16 @@ router.post(
         return;
       }
 
-      // Generate or retrieve docId
-      const count = await DocumentModel.countDocuments();
-      const docId = `D${(3000000 + count + 1).toString()}`;
+      // Generate unique sequential docId above benchmark evaluation range (D3000001-D3000486)
+      const lastDoc = await DocumentModel.findOne().sort({ docId: -1 }).select('docId').lean();
+      let nextNum = 3001001;
+      if (lastDoc && lastDoc.docId && lastDoc.docId.startsWith('D')) {
+        const lastNum = parseInt(lastDoc.docId.substring(1), 10);
+        if (!isNaN(lastNum)) {
+          nextNum = Math.max(3001001, lastNum + 1);
+        }
+      }
+      const docId = `D${nextNum.toString()}`;
 
       // Save file with hash verification and security checks
       const saved = await documentStorage.saveDocument(

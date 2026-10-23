@@ -88,6 +88,8 @@ export interface DocumentRecord {
   docTypeConfidence: number;
   fileHash: string;
   fileSize: number;
+  mimeType?: string;
+  storagePath?: string;
   text?: string;
   createdAt: string;
 }

@@ -16,6 +16,7 @@ import {
   Hash,
   Activity,
   Layers,
+  Eye,
 } from 'lucide-react';
 
 export const MakerWorkspace: React.FC = () => {
@@ -25,6 +26,7 @@ export const MakerWorkspace: React.FC = () => {
   const [selectedDoc, setSelectedDoc] = useState<DocumentRecord | null>(null);
   const [docExtractions, setDocExtractions] = useState<ExtractionRecord[]>([]);
   const [docText, setDocText] = useState<string>('');
+  const [docViewMode, setDocViewMode] = useState<'ocr' | 'file'>('ocr');
 
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -78,13 +80,22 @@ export const MakerWorkspace: React.FC = () => {
       const extData = await api.getDocumentExtractions(doc.docId);
       setDocExtractions(extData.extractions || []);
 
-      // Fetch document text via authenticated file view
-      const fileRes = await fetch(api.getDocumentFileUrl(doc.docId), { credentials: 'include' });
-      if (fileRes.ok) {
-        const text = await fileRes.text();
-        setDocText(text);
+      // If document record already has OCR extracted text, display it directly
+      if (doc.text && doc.text.trim()) {
+        setDocText(doc.text);
       } else {
-        setDocText(doc.text || 'Unable to load document text.');
+        const isPlain = !doc.mimeType || doc.mimeType === 'text/plain';
+        if (isPlain) {
+          const fileRes = await fetch(api.getDocumentFileUrl(doc.docId), { credentials: 'include' });
+          if (fileRes.ok) {
+            const text = await fileRes.text();
+            setDocText(text);
+          } else {
+            setDocText('Unable to load document text.');
+          }
+        } else {
+          setDocText(doc.text || 'Scanned binary document. OCR text stream pending.');
+        }
       }
     } catch (err) {
       console.error('Failed to load document content:', err);
@@ -316,33 +327,115 @@ export const MakerWorkspace: React.FC = () => {
 
               {/* Dual-Pane Layout: Document Viewer & Extracted Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Left Pane: Document Text Viewer */}
+                {/* Left Pane: Document Text Viewer & File Preview */}
                 <div className="bg-white rounded-xl border border-slate-200/90 shadow-2xs flex flex-col h-[520px]">
-                  {/* Doc Tabs */}
-                  <div className="flex border-b border-slate-200 bg-slate-50/80 p-1.5 gap-1.5 overflow-x-auto">
-                    {appDocs.map((doc) => {
-                      const isDocSelected = selectedDoc?.docId === doc.docId;
-                      return (
-                        <button
-                          key={doc.docId}
-                          onClick={() => selectDocument(doc)}
-                          className={`text-xs px-3 py-1.5 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1.5 ${
-                            isDocSelected
-                              ? 'bg-white text-slate-900 shadow-2xs font-semibold border border-slate-200/90'
-                              : 'text-slate-600 hover:bg-slate-200/60'
-                          }`}
-                        >
-                          <FileText className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{doc.declaredDocType}</span>
-                        </button>
-                      );
-                    })}
+                  {/* Doc Tabs & View Mode Switcher */}
+                  <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/80 px-2 py-1.5 gap-2 overflow-x-auto">
+                    <div className="flex items-center gap-1.5">
+                      {appDocs.map((doc) => {
+                        const isDocSelected = selectedDoc?.docId === doc.docId;
+                        return (
+                          <button
+                            key={doc.docId}
+                            onClick={() => selectDocument(doc)}
+                            className={`text-xs px-2.5 py-1.5 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1.5 ${
+                              isDocSelected
+                                ? 'bg-white text-slate-900 shadow-2xs font-semibold border border-slate-200/90'
+                                : 'text-slate-600 hover:bg-slate-200/60'
+                            }`}
+                          >
+                            <FileText className="w-3.5 h-3.5 text-slate-500" />
+                            <span>{doc.declaredDocType}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* View Mode Toggle: OCR Text vs Original PDF/Image File */}
+                    <div className="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-lg shrink-0">
+                      <button
+                        onClick={() => setDocViewMode('ocr')}
+                        className={`text-[11px] font-medium px-2 py-1 rounded flex items-center gap-1 transition ${
+                          docViewMode === 'ocr'
+                            ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <FileText className="w-3 h-3 text-slate-500" />
+                        <span>OCR Text</span>
+                      </button>
+                      <button
+                        onClick={() => setDocViewMode('file')}
+                        className={`text-[11px] font-medium px-2 py-1 rounded flex items-center gap-1 transition ${
+                          docViewMode === 'file'
+                            ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Eye className="w-3 h-3 text-slate-500" />
+                        <span>Document Preview</span>
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Document Raw OCR Text Box with clean legal reader styling */}
-                  <div className="flex-1 p-4 overflow-y-auto font-mono text-xs text-slate-200 bg-slate-950 p-4 rounded-b-xl whitespace-pre-wrap leading-relaxed select-text border-t border-slate-900">
-                    {docText || 'Loading document text...'}
-                  </div>
+                  {/* Document Content View */}
+                  {docViewMode === 'ocr' ? (
+                    <div className="flex-1 p-4 overflow-y-auto font-mono text-xs text-slate-200 bg-slate-950 rounded-b-xl whitespace-pre-wrap leading-relaxed select-text border-t border-slate-900">
+                      {docText ? (
+                        <>
+                          <div className="text-[10px] text-slate-400 pb-2 mb-2 border-b border-slate-800 font-sans flex items-center justify-between">
+                            <span>EXTRACTED OCR TEXT STREAM • {docText.length} CHARS</span>
+                            {selectedDoc && (
+                              <span className="font-mono text-emerald-400">
+                                AI CLASSIFIED: {selectedDoc.classifiedDocType} ({((selectedDoc.docTypeConfidence || 0) * 100).toFixed(0)}%)
+                              </span>
+                            )}
+                          </div>
+                          {docText}
+                        </>
+                      ) : (
+                        <div className="text-slate-500 text-center py-12">
+                          No OCR text available for this document.
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex-1 bg-slate-100 rounded-b-xl overflow-hidden relative flex items-center justify-center">
+                      {selectedDoc ? (
+                        selectedDoc.mimeType === 'application/pdf' || selectedDoc.fileName.toLowerCase().endsWith('.pdf') ? (
+                          <iframe
+                            src={api.getDocumentFileUrl(selectedDoc.docId)}
+                            className="w-full h-full border-0"
+                            title="Document Preview"
+                          />
+                        ) : selectedDoc.mimeType?.startsWith('image/') || /\.(png|jpg|jpeg)$/i.test(selectedDoc.fileName) ? (
+                          <div className="p-4 flex items-center justify-center w-full h-full bg-slate-900/5">
+                            <img
+                              src={api.getDocumentFileUrl(selectedDoc.docId)}
+                              alt={selectedDoc.fileName}
+                              className="max-h-full max-w-full object-contain rounded shadow border border-slate-200"
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-center p-8 text-slate-500 text-xs">
+                            <FileText className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                            <p className="font-semibold">{selectedDoc.fileName}</p>
+                            <p className="text-slate-400 mt-1">Binary file type: {selectedDoc.mimeType}</p>
+                            <a
+                              href={api.getDocumentFileUrl(selectedDoc.docId)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-block mt-3 px-3 py-1 bg-slate-900 text-white rounded text-xs"
+                            >
+                              Open in New Tab
+                            </a>
+                          </div>
+                        )
+                      ) : (
+                        <div className="text-slate-400 text-xs">No document selected.</div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Pane: Extracted Fields & Confidence */}

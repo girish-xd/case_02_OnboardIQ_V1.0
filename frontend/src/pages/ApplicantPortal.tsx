@@ -55,6 +55,7 @@ export const ApplicantPortal: React.FC = () => {
   // Resubmission modal state
   const [resubmittingDocType, setResubmittingDocType] = useState<DeclaredDocType>('ELECTRICITY_BILL');
   const [resubmittingFile, setResubmittingFile] = useState<File | null>(null);
+  const [addressProofDocType, setAddressProofDocType] = useState<DeclaredDocType>('ELECTRICITY_BILL');
 
   const fetchMyApplications = async () => {
     setLoading(true);
@@ -504,39 +505,86 @@ export const ApplicantPortal: React.FC = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {/* PAN Card */}
-                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
-                      <span className="text-xs font-semibold block text-slate-800">1. PAN Card</span>
-                      <input
-                        type="file"
-                        accept=".txt,.pdf,.png,.jpg"
-                        onChange={(e) => handleDocumentFileSelect('PAN_CARD', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
-                      />
+                    <div className="border border-slate-200/90 rounded-xl p-3.5 bg-slate-50/60 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-800">1. PAN Card</span>
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">PDF/Image</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mb-2">Mandatory proof of tax identity</p>
+                      </div>
+                      <div>
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg,.txt"
+                          onChange={(e) => handleDocumentFileSelect('PAN_CARD', e)}
+                          className="text-[11px] block w-full text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer"
+                        />
+                        {draftDocs.find((d) => d.declaredDocType === 'PAN_CARD') && (
+                          <div className="mt-2 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="truncate">{draftDocs.find((d) => d.declaredDocType === 'PAN_CARD')?.fileName}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Aadhaar Card */}
-                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
-                      <span className="text-xs font-semibold block text-slate-800">2. Aadhaar Card</span>
-                      <input
-                        type="file"
-                        accept=".txt,.pdf,.png,.jpg"
-                        onChange={(e) => handleDocumentFileSelect('AADHAAR_CARD', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
-                      />
+                    <div className="border border-slate-200/90 rounded-xl p-3.5 bg-slate-50/60 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-800">2. Aadhaar Card</span>
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">PDF/Image</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mb-2">Masked or standard e-Aadhaar</p>
+                      </div>
+                      <div>
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg,.txt"
+                          onChange={(e) => handleDocumentFileSelect('AADHAAR_CARD', e)}
+                          className="text-[11px] block w-full text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer"
+                        />
+                        {draftDocs.find((d) => d.declaredDocType === 'AADHAAR_CARD') && (
+                          <div className="mt-2 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="truncate">{draftDocs.find((d) => d.declaredDocType === 'AADHAAR_CARD')?.fileName}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Address Proof */}
-                    <div className="border border-slate-200 rounded-lg p-3 text-center bg-slate-50">
-                      <FileText className="w-5 h-5 mx-auto text-slate-500 mb-1" />
-                      <span className="text-xs font-semibold block text-slate-800">3. Address Proof</span>
-                      <input
-                        type="file"
-                        accept=".txt,.pdf,.png,.jpg"
-                        onChange={(e) => handleDocumentFileSelect('ELECTRICITY_BILL', e)}
-                        className="text-[11px] mt-2 block w-full text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-slate-200 file:text-slate-800"
-                      />
+                    <div className="border border-slate-200/90 rounded-xl p-3.5 bg-slate-50/60 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-800">3. Address Proof</span>
+                          <select
+                            value={addressProofDocType}
+                            onChange={(e) => setAddressProofDocType(e.target.value as DeclaredDocType)}
+                            className="text-[10px] font-medium border border-slate-200 rounded px-1.5 py-0.5 bg-white text-slate-800 focus:outline-none"
+                          >
+                            <option value="ELECTRICITY_BILL">Electricity Bill</option>
+                            <option value="BANK_STATEMENT">Bank Statement</option>
+                            <option value="DRIVING_LICENCE">Driving Licence</option>
+                          </select>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mb-2">Utility bill, bank statement, or DL</p>
+                      </div>
+                      <div>
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg,.txt"
+                          onChange={(e) => handleDocumentFileSelect(addressProofDocType, e)}
+                          className="text-[11px] block w-full text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer"
+                        />
+                        {draftDocs.find((d) => d.declaredDocType === addressProofDocType) && (
+                          <div className="mt-2 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span className="truncate">{draftDocs.find((d) => d.declaredDocType === addressProofDocType)?.fileName}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -643,7 +691,7 @@ export const ApplicantPortal: React.FC = () => {
                     </select>
                     <input
                       type="file"
-                      accept=".txt,.pdf,.png,.jpg"
+                      accept=".pdf,.png,.jpg,.jpeg,.txt"
                       onChange={(e) => setResubmittingFile(e.target.files?.[0] || null)}
                       className="text-xs text-amber-900 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-amber-200 file:text-amber-900"
                     />
